@@ -1177,7 +1177,7 @@
                 groupSelect.value = session.group;
                 const snap = await db.ref('students').orderByChild('group').equalTo(session.group).once('value');
                 if (snap.exists()) {
-                    snap.forEach(c => { const s = c.val(); if (s.studentNumber === session.studentNumber && s.status !== 'disabled') currentStudent = s; });
+                    snap.forEach(c => { const s = c.val(); s._key = c.key; if (s.studentNumber === session.studentNumber && s.status !== 'disabled') currentStudent = s; });
                     if (currentStudent) {
                         const gSnap = await db.ref('groups').orderByChild('name').equalTo(session.group).once('value');
                         gSnap.forEach(c => currentGroupFees = c.val().fees || 0);
@@ -1238,7 +1238,7 @@
             try {
                 const snap = await db.ref('students').orderByChild('group').equalTo(group).once('value');
                 let match = null;
-                if (snap.exists()) snap.forEach(c => { const s = c.val(); if (s.password === password && s.status !== 'disabled') match = s; });
+                if (snap.exists()) snap.forEach(c => { const s = c.val(); s._key = c.key; if (s.password === password && s.status !== 'disabled') match = s; });
                 if (!match) {
                     setLoading(false);
                     showMsg('❌ الرقم السري غير صحيح أو المجموعة خاطئة');
@@ -1797,7 +1797,7 @@
             if (!currentStudent) return null;
             if (studentChatType === 'group') return `chats/groups/${currentStudent.group}/messages`;
             if (studentChatType === 'contact') return `contactChats/${currentStudent.group}/${currentStudent.studentNumber}/messages`;
-            return `chats/private/${currentStudent.studentNumber}/messages`;
+            return `chats/private/${currentStudent._key}/messages`;
         }
 
         function initStudentChat() {
@@ -1872,7 +1872,7 @@
             ['group','private','contact'].forEach(type => {
                 const path = type === 'group' ? `chats/groups/${currentStudent.group}/messages` :
                     type === 'contact' ? `contactChats/${currentStudent.group}/${currentStudent.studentNumber}/messages` :
-                    `chats/private/${currentStudent.studentNumber}/messages`;
+                    `chats/private/${currentStudent._key}/messages`;
                 db.ref(path).orderByChild('timestamp').limitToLast(1).once('value', snap => {
                     if (snap.exists()) {
                         let lastTs = 0;
@@ -1964,9 +1964,9 @@
                 });
             } else {
                 studentChatLocked = false;
-                studentLockRef = db.ref(`chats/private/${currentStudent.studentNumber}/locked`);
+                studentLockRef = db.ref(`chats/private/${currentStudent._key}/locked`);
                 studentLockRef.on('value', snap => { studentChatLocked = snap.val() === true; updateStudentChatInputState(); });
-                studentPinnedRef = db.ref(`chats/private/${currentStudent.studentNumber}/pinned`);
+                studentPinnedRef = db.ref(`chats/private/${currentStudent._key}/pinned`);
             }
             if (studentPinnedRef) {
                 studentPinnedRef.on('value', snap => {
@@ -2075,6 +2075,8 @@
             if (studentChatType === 'contact') {
                 studentContactMsgCount++;
                 db.ref(`contactChats/${currentStudent.group}/${currentStudent.studentNumber}/lastActivity`).set(Date.now());
+            } else if (studentChatType === 'private') {
+                db.ref(`chats/private/${currentStudent._key}/lastActivity`).set(Date.now());
             }
         }
 
@@ -2296,6 +2298,8 @@
                         if (studentChatType === 'contact') {
                             studentContactMsgCount++;
                             db.ref(`contactChats/${currentStudent.group}/${currentStudent.studentNumber}/lastActivity`).set(Date.now());
+                        } else if (studentChatType === 'private') {
+                            db.ref(`chats/private/${currentStudent._key}/lastActivity`).set(Date.now());
                         }
                     } else { msgEl.textContent = '❌ فشل رفع الصورة'; }
                 }).catch(() => msgEl.textContent = '❌ خطأ في الرفع');
@@ -2345,6 +2349,8 @@
                         if (studentChatType === 'contact') {
                             studentContactMsgCount++;
                             db.ref(`contactChats/${currentStudent.group}/${currentStudent.studentNumber}/lastActivity`).set(Date.now());
+                        } else if (studentChatType === 'private') {
+                            db.ref(`chats/private/${currentStudent._key}/lastActivity`).set(Date.now());
                         }
                     };
                     reader.readAsDataURL(blob);
