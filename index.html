@@ -230,6 +230,8 @@
         .btn-secondary:hover { background: rgba(255,255,255,0.14); border-color: rgba(6,182,212,0.3); }
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 10px; }
         .btn-xs { padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; }
+        .btn-danger { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.35); cursor: pointer; font-family: inherit; font-weight: 700; transition: all .2s; }
+        .btn-danger:hover { background: rgba(244,63,94,0.25); }
 
         /* ===== TABS (GRID 3x2) ===== */
         .tabs-wrap {
@@ -486,7 +488,15 @@
         .chat-msg .edited-label { font-size:0.65rem; opacity:0.4; margin-right:4px; }
         .chat-msg .deleted-text { color:rgba(255,255,255,0.3); font-style:italic; }
         .chat-msg .image-msg img { max-width:200px; max-height:200px; border-radius:10px; cursor:pointer; margin:4px 0; border:2px solid rgba(255,255,255,0.08); }
-        .chat-msg .audio-msg audio { width:100%; height:36px; margin:4px 0; border-radius:8px; }
+        .chat-msg .audio-msg { min-width:0; max-width:100%; }
+        .chat-msg .audio-msg audio { width:100%; height:auto; min-height:40px; margin:4px 0; border-radius:8px; display:block; }
+        .custom-audio-player { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); direction:ltr; min-height:40px; margin:4px 0; max-width:100%; }
+        .custom-audio-player .cap-play { width:34px; height:34px; border-radius:50%; border:none; background:#6366f1; color:#fff; font-size:0.8rem; cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center; }
+        .custom-audio-player .cap-bar { flex:1; height:6px; border-radius:3px; background:rgba(255,255,255,0.2); cursor:pointer; position:relative; min-width:0; }
+        .custom-audio-player .cap-prog { position:absolute; left:0; top:0; height:100%; width:0%; border-radius:3px; background:#10b981; }
+        .custom-audio-player .cap-time { color:rgba(255,255,255,0.75); font-size:0.7rem; white-space:nowrap; direction:ltr; }
+        .custom-audio-player .cap-dl { width:30px; height:30px; border-radius:8px; border:none; background:rgba(255,255,255,0.12); color:#fff; cursor:pointer; flex:none; font-size:0.8rem; display:flex; align-items:center; justify-content:center; }
+        .cap-msg { color:#fbbf24; font-size:0.75rem; }
         #studentChatMessages { display:flex; flex-direction:column; gap:8px; }
         .pinned-bar { background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px; }
         .pinned-bar.hidden { display:none; }
@@ -685,6 +695,7 @@
         .tab-card:hover.c13 { box-shadow:0 8px 30px rgba(94,234,212,0.25); }
         .tab-card:hover.c14 { box-shadow:0 8px 30px rgba(196,181,253,0.25); }
         .tab-card:hover.c15 { box-shadow:0 8px 30px rgba(251,191,36,0.25); }
+        .w-full { width: 100%; }
         /* Tab content colors — soft top accent */
         .tab-content.tab-fullscreen { position:relative; }
         .tab-content.tab-fullscreen::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:12px 12px 0 0; }
@@ -848,7 +859,7 @@
                     <div id="requiredHwBadge" class="hidden"><span class="badge-new">🔴 جديد</span></div>
                     <div class="table-wrap glass-strong">
                         <table>
-                            <thead><tr><th>صورة</th><th>العنوان</th><th>من صفحة</th><th>إلى صفحة</th><th>رقم السؤال</th></tr></thead>
+                            <thead><tr><th>الواجب</th><th>الصورة</th><th>رقم السؤال</th></tr></thead>
                             <tbody id="requiredHwBody"></tbody>
                         </table>
                     </div>
@@ -859,7 +870,10 @@
                 <div class="glass-strong rounded-2xl p-5 space-y-4">
                     <div class="flex items-center justify-between gap-3 flex-wrap">
                         <h3 class="text-xl font-bold text-white">🏆 واجبات فورية تنافسية</h3>
-                        <button class="btn-secondary btn-sm" onclick="showStudentLeaderboard()">🏅 سجل النقاط</button>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="btn-secondary btn-sm" onclick="showStudentLeaderboard()">🏅 سجل النقاط</button>
+                            <button class="btn-secondary btn-sm" onclick="showStudentPeriods()">🎖️ الفترات</button>
+                        </div>
                     </div>
                     <div id="studentIAHead" class="hidden">
                         <div class="ia-timer" id="studentIATimer"></div>
@@ -962,6 +976,7 @@
                         <button class="notif-filter-btn" data-cat="reading" onclick="setNotifFilter('reading')">القراءة</button>
                         <button class="notif-filter-btn" data-cat="payment" onclick="setNotifFilter('payment')">الدفعات</button>
                         <button class="notif-filter-btn" data-cat="certificate" onclick="setNotifFilter('certificate')">الشهادات</button>
+                        <button class="notif-filter-btn" data-cat="star" onclick="setNotifFilter('star')">النجوم</button>
                     </div>
                     <div id="studentNotifList"></div>
                     <div id="studentNotifEmpty" class="text-gray-300 text-center py-8 hidden">لا توجد إشعارات</div>
@@ -1041,10 +1056,11 @@
                     <div id="studentBooksEmpty" class="text-gray-300 text-center py-8 hidden">لا توجد كتب أو أوراق بعد</div>
                 </div>
             </div>
+
             <div id="tabStudentStars" class="tab-content anim-fade-up anim-fade-up-d2">
                 <div class="glass-strong rounded-2xl p-5 space-y-4">
                     <h3 class="text-xl font-bold text-white">⭐ تكريم الطلاب</h3>
-                    <div class="flex gap-2 mb-4 mt-2">
+                    <div class="flex flex-wrap gap-2 mb-3">
                         <button class="notif-filter-btn active" data-tab="stars" onclick="switchStudentStarsTab('stars')">⭐ نجوم الحصة</button>
                         <button class="notif-filter-btn" data-tab="certs" onclick="switchStudentStarsTab('certs')">🏅 الشهادات</button>
                     </div>
@@ -1069,6 +1085,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCJtUZmfJwLTXQ9vI9o_r7uUW0McsFXUZI",
@@ -1110,6 +1127,101 @@
 
         // ===== STATE =====
         let currentStudent = null;
+
+        // ===== AUDIO HELPERS =====
+        function fixAudioDataUri(uri) {
+            if (typeof uri !== 'string' || !uri || uri.indexOf('data:') !== 0) return uri;
+            const comma = uri.indexOf(',');
+            if (comma < 0) return uri;
+            const head = uri.slice(0, comma);
+            const raw = uri.slice(comma + 1).replace(/\s+/g, '');
+            if (!/;base64/i.test(head)) return uri;
+            let ext = '';
+            try {
+                const b = atob(raw.substring(0, 400));
+                const c = i => b.charCodeAt(i);
+                if (c(0) === 0x1A && c(1) === 0x45 && c(2) === 0xDF && c(3) === 0xA3) ext = 'audio/webm';
+                else if (c(4) === 0x66 && c(5) === 0x74 && c(6) === 0x79 && c(7) === 0x70) ext = 'audio/mp4';
+                else if (c(0) === 0x4F && c(1) === 0x67 && c(2) === 0x67 && c(3) === 0x53) ext = 'audio/ogg';
+                else if (c(0) === 0x49 && c(1) === 0x44 && c(2) === 0x33) ext = 'audio/mpeg';
+                else if (c(0) === 0xFF && (c(1) & 0xE0) === 0xE0) ext = 'audio/mpeg';
+                else if (c(0) === 0x23 && c(1) === 0x21 && c(2) === 0x41 && c(3) === 0x4D) ext = 'audio/amr';
+                else if (c(0) === 0x52 && c(1) === 0x49 && c(2) === 0x46 && c(3) === 0x46) ext = 'audio/wav';
+                else if (c(0) === 0x66 && c(1) === 0x4C && c(2) === 0x61 && c(3) === 0x43) ext = 'audio/flac';
+            } catch (e) { return uri; }
+            if (!ext) return uri;
+            return 'data:' + ext + ';base64,' + raw;
+        }
+        function attachAudioPlayer(wrap, dataUri) {
+            if (!wrap || !dataUri) return;
+            const fixed = fixAudioDataUri(dataUri);
+            wrap.innerHTML = '';
+            const row = document.createElement('div');
+            row.className = 'custom-audio-player';
+            const btn = document.createElement('button');
+            btn.type = 'button'; btn.className = 'cap-play'; btn.innerHTML = '▶';
+            const bar = document.createElement('div');
+            bar.className = 'cap-bar';
+            const prog = document.createElement('div');
+            prog.className = 'cap-prog';
+            const time = document.createElement('span');
+            time.className = 'cap-time'; time.textContent = '0:00';
+            const dl = document.createElement('button');
+            dl.type = 'button'; dl.className = 'cap-dl'; dl.title = 'تنزيل'; dl.innerHTML = '⤓';
+            const audio = document.createElement('audio');
+            audio.preload = 'metadata';
+            audio.src = fixed;
+            audio.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
+            const fmt = s => { s = Math.floor(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+            const upd = () => {
+                if (audio.duration) {
+                    prog.style.width = (audio.currentTime / audio.duration * 100) + '%';
+                    time.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+                }
+            };
+            audio.addEventListener('loadedmetadata', upd);
+            audio.addEventListener('timeupdate', upd);
+            audio.addEventListener('ended', () => { btn.innerHTML = '▶'; });
+            audio.addEventListener('play', () => { btn.innerHTML = '⏸'; });
+            audio.addEventListener('pause', () => { btn.innerHTML = '▶'; });
+            audio.addEventListener('error', () => {
+                row.classList.add('cap-error');
+                btn.innerHTML = '⚠';
+                time.textContent = 'تعذر التشغيل';
+            });
+            btn.addEventListener('click', () => {
+                if (audio.paused) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+                else audio.pause();
+            });
+            bar.addEventListener('click', e => {
+                const r = bar.getBoundingClientRect();
+                if (r.width && audio.duration) audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+            });
+            dl.addEventListener('click', () => {
+                const a = document.createElement('a');
+                const m = fixed.match(/^data:([^;]+)/);
+                const mime = m ? m[1] : 'audio/m4a';
+                a.href = fixed;
+                a.download = 'recording.' + (mime.indexOf('webm') >= 0 ? 'webm' : mime.indexOf('mp4') >= 0 ? 'm4a' : mime.indexOf('mpeg') >= 0 ? 'mp3' : mime.indexOf('ogg') >= 0 ? 'ogg' : 'm4a');
+                document.body.appendChild(a); a.click(); a.remove();
+            });
+            row.appendChild(btn); row.appendChild(bar); row.appendChild(time); row.appendChild(dl);
+            bar.appendChild(prog);
+            wrap.appendChild(row);
+            wrap.appendChild(audio);
+        }
+        function micErrorText(err) {
+            const n = err && err.name;
+            if (n === 'NotAllowedError' || n === 'PermissionDeniedError') return '🚫 تم رفض إذن المايكروفون — اسمح له من إعدادات الموقع ثم أعد المحاولة';
+            if (n === 'NotFoundError' || n === 'DevicesNotFoundError') return '🎙 لا يوجد مايكروفون متصل بالجهاز';
+            if (n === 'NotReadableError' || n === 'TrackStartError') return '🎙 المايكروفون مشغول من تطبيق آخر — أغلقه ثم أعد المحاولة';
+            if (n === 'SecurityError') return '🔒 الوصول للمايكروفون محظور أمنياً';
+            if (n === 'AbortError') return '⏹ تم إلغاء طلب المايكروفون';
+            return '❌ لا يمكن الوصول إلى المايكروفون';
+        }
+        function secureCtxMsg() {
+            return '⚠️ التسجيل الصوتي لا يعمل عند فتح الملف مباشرة — افتح الموقع عبر https:// أو استضف الملفات على موقع آمن';
+        }
         let currentGroupFees = 0;
         let data = { homeworks: [], exams: [], notes: [], reading: [], dictation: [], attendance: [], payments: [], requiredHw: [] };
         let currentTab = 'homeworks';
@@ -1620,15 +1732,35 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             let filtered = applyFilter(data.requiredHw, filter);
-            if (!filtered.length) { tbody.innerHTML = emptyRow(5, 'لا توجد واجبات مطلوبة'); return; }
+            if (!filtered.length) { tbody.innerHTML = emptyRow(3, 'لا توجد واجبات مطلوبة'); return; }
             filtered.forEach((h, i) => {
-                const urls = h.imageUrls || (h.imageUrl ? [h.imageUrl] : []);
-                const imgBtn = urls.length ? `<button class="btn-secondary btn-xs" onclick="showHwImg('${urls[0]}')">🖼️ عرض</button>` : '-';
+                const titleColors = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e'];
                 const tr1 = document.createElement('tr');
-                tr1.innerHTML = '<td colspan="5" style="font-weight:600;font-size:1.1rem;background:rgba(99,102,241,0.1);border-radius:8px">' + escapeHtml(h.title || '') + '</td>';
+                tr1.innerHTML = '<td colspan="3" title="' + escapeHtml(h.title || '') + '" style="padding:0;background:' + titleColors[i % titleColors.length] + ';border-radius:8px;border:2px solid rgba(255,255,255,0.25);grid-column:1/-1">' +
+                    '<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:10px 14px;color:#fff;font-weight:700;font-size:1.05rem">' + escapeHtml(h.title || '') + '</div></td>';
                 tbody.appendChild(tr1);
+                if (h.pagesData && h.pagesData.length) {
+                    h.pagesData.slice().sort((a, b) => a.page - b.page).forEach(pg => {
+                        const urls = pg.imageUrls || [];
+                        const imgHtml = urls.length ? urls.slice(0, 3).map(u => `<img src="${u}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;border:2px solid rgba(6,182,212,0.4);cursor:pointer;margin:2px" onclick="showHwImg('${u}')" />`).join(' ') : '-';
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = '<td data-label="الواجب"><span style="display:inline-block;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;padding:2px 10px;border-radius:999px;font-size:0.85rem;font-weight:700">📖 صفحة ' + pg.page + '</span></td>' +
+                            '<td data-label="الصورة"><div style="display:flex;flex-wrap:wrap;gap:2px">' + imgHtml + '</div></td>' +
+                            '<td data-label="رقم السؤال">' + escapeHtml(pg.question || '-') + '</td>';
+                        tbody.appendChild(tr);
+                    });
+                    return;
+                }
+                const urls = h.imageUrls || (h.imageUrl ? [h.imageUrl] : []);
+                const imgHtml = urls.length ? urls.slice(0, 3).map(u => `<img src="${u}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;border:2px solid rgba(6,182,212,0.4);cursor:pointer;margin:2px" onclick="showHwImg('${u}')" />`).join(' ') : '-';
+                let pagesHtml = '-';
+                if (h.pages && h.pages.length) {
+                    pagesHtml = h.pages.slice().sort((a, b) => a - b).map(p => `<span style="display:inline-block;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;padding:2px 10px;border-radius:999px;font-size:0.8rem;font-weight:700;margin:2px">📖 ${p}</span>`).join(' ');
+                } else if (h.pageFrom || h.pageTo) {
+                    pagesHtml = `<span style="color:#a5b4fc;font-size:0.9rem">من ${h.pageFrom || '-'} إلى ${h.pageTo || '-'}</span>`;
+                }
                 const tr2 = document.createElement('tr');
-                tr2.innerHTML = '<td data-label="من صفحة">' + (h.pageFrom || '-') + '</td><td data-label="إلى صفحة">' + (h.pageTo || '-') + '</td><td data-label="رقم السؤال">' + escapeHtml(h.questionNum || '-') + '</td><td data-label="الصورة" colspan="2">' + imgBtn + '</td>';
+                tr2.innerHTML = '<td colspan="3"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">' + pagesHtml + '<span style="color:rgba(255,255,255,0.6);font-size:0.9rem">🔢 سؤال: ' + escapeHtml(h.questionNum || '-') + '</span></div><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:2px">' + imgHtml + '</div></td>';
                 tbody.appendChild(tr2);
             });
             updateRequiredHwBadge();
@@ -1710,8 +1842,8 @@
                     div.style.cssText = n.seen ? 'opacity:0.7;' : '';
                     let extra = '';
                     if (n.imageUrl) extra += '<br><img src="' + n.imageUrl + '" style="max-width:100%;border-radius:8px;margin:4px 0" />';
-                    if (n.audioBase64) extra += '<br><audio controls src="' + n.audioBase64 + '" style="width:100%;height:30px;border-radius:6px;margin:4px 0"></audio>';
-                    const catEmoji = { attendance:'📋', homework:'📚', instant:'⚡', exam:'📝', dictation:'✍️', reading:'📖', payment:'💰', certificate:'🏅', general:'🔔' };
+                    if (n.audioBase64) extra += '<br><div class="aud-slot"></div>';
+                    const catEmoji = { attendance:'📋', homework:'📚', instant:'⚡', exam:'📝', dictation:'✍️', reading:'📖', payment:'💰', certificate:'🏅', star:'⭐', general:'🔔' };
                     const catLabel = n.category && catEmoji[n.category] ? catEmoji[n.category] : '🔔';
                     div.innerHTML =
                         '<div class="flex items-center gap-2">' +
@@ -1721,6 +1853,10 @@
                         '<p class="text-gray-300 text-sm mt-1">' + escapeHtml(n.message) + '</p>' + extra +
                         (n.sender ? '<small class="text-cyan-400">من: ' + escapeHtml(n.sender) + '</small>' : '');
                     list.appendChild(div);
+                    if (n.audioBase64) {
+                        const slot = div.querySelector('.aud-slot');
+                        if (slot) attachAudioPlayer(slot, n.audioBase64);
+                    }
                 });
             });
         }
@@ -1764,6 +1900,7 @@
         let studentMediaRecorder = null;
         let studentAudioChunks = [];
         let studentIsRecording = false;
+        let studentMicStream = null;
         let studentRecordTimer = null;
         let studentRecordSecs = 0;
         let studentChatLocked = false;
@@ -1913,7 +2050,7 @@
                 body += `<div class="image-msg"><img src="${escapeHtml(m.imageUrl)}" onclick="window.open(this.src)" /></div>`;
             }
             if (m.audioBase64) {
-                body += `<div class="audio-msg"><audio controls src="${m.audioBase64}"></audio></div>`;
+                body += '<div class="audio-msg"></div>';
             }
             if (m.text) {
                 body += `<div class="msg-text">${escapeHtml(m.text)}${m.edited ? '<span class="edited-label">(معدلة)</span>' : ''}</div>`;
@@ -1922,6 +2059,10 @@
                 body += `<div class="actions"><button onclick="editStudentMsg('${key}')" title="تعديل">✏️</button><button onclick="deleteStudentMsg('${key}')" title="حذف">🗑️</button></div>`;
             }
             div.innerHTML = `<div class="sender">${escapeHtml(m.senderName)}</div>${body || '<div></div>'}<div class="time">${time}</div>`;
+            if (m.audioBase64) {
+                const wrap = div.querySelector('.audio-msg');
+                if (wrap) attachAudioPlayer(wrap, m.audioBase64);
+            }
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
@@ -2324,11 +2465,12 @@
         }
 
         function startStudentRecording() {
-            if (!navigator.mediaDevices?.getUserMedia) {
-                document.getElementById('studentChatMsg').textContent = '❌ التسجيل غير مدعوم';
+            if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+                document.getElementById('studentChatMsg').textContent = window.isSecureContext ? '❌ التسجيل غير مدعوم في هذا المتصفح' : secureCtxMsg();
                 return;
             }
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                studentMicStream = stream;
                 studentAudioChunks = [];
                 const opts = { mimeType: 'audio/webm;codecs=opus' };
                 try { studentMediaRecorder = new MediaRecorder(stream, opts); }
@@ -2355,7 +2497,9 @@
                     };
                     reader.readAsDataURL(blob);
                     stream.getTracks().forEach(t => t.stop());
+                    studentMicStream = null;
                 };
+                studentMediaRecorder.onerror = () => { stopStudentRecording(); };
                 studentMediaRecorder.start();
                 studentIsRecording = true;
                 studentRecordSecs = 0;
@@ -2370,8 +2514,8 @@
                     if (studentRecordSecs >= 90) stopStudentRecording();
                 }, 1000);
                 document.getElementById('studentChatMsg').textContent = '';
-            }).catch(() => {
-                document.getElementById('studentChatMsg').textContent = '❌ لا يمكن الوصول إلى المايكروفون';
+            }).catch(err => {
+                document.getElementById('studentChatMsg').textContent = micErrorText(err);
             });
         }
 
@@ -2384,6 +2528,12 @@
                 if (studentRecordTimer) { clearInterval(studentRecordTimer); studentRecordTimer = null; }
             }
         }
+
+        window.addEventListener('pagehide', () => {
+            if (studentMicStream) { studentMicStream.getTracks().forEach(t => t.stop()); studentMicStream = null; }
+            if (mqMicStream) { mqMicStream.getTracks().forEach(t => t.stop()); mqMicStream = null; }
+            if (iaStudentMicStream) { iaStudentMicStream.getTracks().forEach(t => t.stop()); iaStudentMicStream = null; }
+        });
 
         passwordInput.addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
 
@@ -2544,28 +2694,32 @@
                 // Single-question format (old)
                 let html = `<div class="text-red-400 text-sm mb-3">${escapeHtml(a.questionText || a.title || '')}</div>`;
                 if (a.questionImageUrl) html += `<div class="mb-3"><img src="${a.questionImageUrl}" style="max-width:200px;max-height:200px;border-radius:8px" /></div>`;
-                if (a.questionAudioBase64) html += `<div class="mb-3"><audio controls src="${a.questionAudioBase64}" style="width:100%;height:36px;border-radius:6px"></audio></div>`;
-                html += singleQuestionFormHTML(assignKey, a, existingAnswer);
+                const audioSlots = [];
+                if (a.questionAudioBase64) { html += `<div class="mb-3"><div class="aud-slot"></div></div>`; audioSlots.push(a.questionAudioBase64); }
+                html += singleQuestionFormHTML(assignKey, a, existingAnswer, audioSlots);
                 html += `<button class="btn-secondary btn-xs mt-3" onclick="loadStudentAssignments()">🔙 رجوع</button>`;
                 container.innerHTML = html;
+                container.querySelectorAll('.aud-slot').forEach((s, i) => attachAudioPlayer(s, audioSlots[i]));
             } else {
                 // Multi-question format
                 const questions = a.questions || [];
                 let html = `<div class="text-cyan-400 text-sm mb-3 font-bold">${escapeHtml(a.title || '')} (${questions.length} أسئلة)</div>`;
                 let allAutoGrade = true;
+                const audioSlots = [];
                 questions.forEach((q, qi) => {
                     const sa = existingAnswers[q.id] || {};
-                    html += renderStudentSingleQuestion(q, qi, assignKey, sa);
+                    html += renderStudentSingleQuestion(q, qi, assignKey, sa, audioSlots);
                     if (q.type === 'text' || q.type === 'image' || q.type === 'audio' || q.type === 'worksheet' || q.type === 'crossword') allAutoGrade = false;
                 });
                 html += `<button class="btn-primary mt-4 w-full" onclick="submitMultiAnswer('${assignKey}')">${editing ? '💾 حفظ التعديلات' : '📨 إرسال الإجابات'}</button>`;
                 html += `<button class="btn-secondary btn-xs mt-2" onclick="loadStudentAssignments()">🔙 رجوع</button>`;
                 html += `<div id="iaMultiMsg" class="text-sm mt-2"></div>`;
                 container.innerHTML = html;
+                container.querySelectorAll('.aud-slot').forEach((s, i) => attachAudioPlayer(s, audioSlots[i]));
             }
         }
 
-        function singleQuestionFormHTML(assignKey, a, existingAnswer) {
+        function singleQuestionFormHTML(assignKey, a, existingAnswer, audioSlots) {
             const type = a.questionType;
             const editing = existingAnswer && existingAnswer.submittedAt;
             let html = '';
@@ -2597,9 +2751,12 @@
                     </div>`;
             } else if (type === 'audio') {
                 html += `<div class="space-y-3">
-                        <button class="btn-secondary" id="iaStudentRecordBtn" onclick="toggleStudentIARecording()">🎤 تسجيل صوتي (90 ث)</button>
-                        ${existingAnswer && existingAnswer.audioBase64 ? `<div class="text-red-400/70 text-xs">التسجيل السابق: <audio controls src="${existingAnswer.audioBase64}" style="width:100%;height:30px;border-radius:6px"></audio></div>` : ''}
-                        <div id="iaStudentAudioPreview" class="hidden"></div>
+                        <button class="btn-secondary" id="iaStudentRecordBtn" onclick="toggleStudentIARecording()">🎤 تسجيل صوتي (90 ث)</button>`;
+                if (existingAnswer && existingAnswer.audioBase64) {
+                    html += '<div class="text-red-400/70 text-xs">التسجيل السابق: <div class="aud-slot"></div></div>';
+                    audioSlots.push(existingAnswer.audioBase64);
+                }
+                html += `<div id="iaStudentAudioPreview" class="hidden"></div>
                         <div id="iaStudentRecordStatus" class="rec-status hidden">🔴 <span id="iaStudentRecordTime">0:00</span></div>
                         <button class="btn-primary hidden" id="iaStudentAudioSubmit" onclick="submitAudioAnswer('${assignKey}')">${editing ? '💾 حفظ التعديل' : 'إرسال التسجيل'}</button>
                     </div>`;
@@ -2621,12 +2778,12 @@
             return html;
         }
 
-        function renderStudentSingleQuestion(q, qi, assignKey, sa) {
+        function renderStudentSingleQuestion(q, qi, assignKey, sa, audioSlots) {
             const typeIcons = { text:'📝', mcq:'🔘', truefalse:'✅', image:'📷', audio:'🎤', match:'🧩', order:'🔄', multiselect:'☑️', fillblank:'✍️', worksheet:'🖼️', crossword:'🧩' };
             let html = `<div class="ia-qblock" data-multi-q="${q.id}" style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);margin-bottom:12px">
                 <div class="text-red-400 text-sm font-bold mb-2">${typeIcons[q.type]||'📝'} سؤال ${qi+1}: ${escapeHtml(q.text||'')} <span class="text-white/40 text-xs">(${q.points||0} ن)</span></div>`;
             if (q.imageUrl) html += `<div class="mb-2"><img src="${q.imageUrl}" style="max-width:150px;max-height:150px;border-radius:8px" /></div>`;
-            if (q.audioBase64) html += `<div class="mb-2"><audio controls src="${q.audioBase64}" style="width:100%;height:30px;border-radius:6px"></audio></div>`;
+            if (q.audioBase64) { html += '<div class="mb-2"><div class="aud-slot"></div></div>'; audioSlots.push(q.audioBase64); }
             const qid = 'mq_' + qi;
             if (q.type === 'text') {
                 const val = sa.answerText || '';
@@ -2649,9 +2806,12 @@
                     ${sa.imageUrl ? `<div class="text-red-400/70 text-xs">السابق: <img src="${sa.imageUrl}" style="max-width:80px;max-height:80px;border-radius:4px;display:block;margin-top:2px" /></div>` : ''}
                     <div class="mqImgPrev" data-q="${q.id}" style="max-width:100px;max-height:100px"></div>`;
             } else if (q.type === 'audio') {
-                html += `<button type="button" class="btn-secondary btn-xs mqAudBtn" onclick="toggleMultiAudio(this,'${q.id}')">🎤 تسجيل (90 ث)</button>
-                    ${sa.audioBase64 ? `<div class="text-red-400/70 text-xs">السابق: <audio controls src="${sa.audioBase64}" style="width:100%;height:24px;border-radius:4px"></audio></div>` : ''}
-                    <div class="mqAudPrev" data-q="${q.id}" style="max-width:100px"></div>
+                html += `<button type="button" class="btn-secondary btn-xs mqAudBtn" onclick="toggleMultiAudio(this,'${q.id}')">🎤 تسجيل (90 ث)</button>`;
+                if (sa.audioBase64) {
+                    html += '<div class="text-red-400/70 text-xs">السابق: <div class="aud-slot"></div></div>';
+                    audioSlots.push(sa.audioBase64);
+                }
+                html += `<div class="mqAudPrev" data-q="${q.id}" style="max-width:100px"></div>
                     <span class="mqAudStat" data-q="${q.id}" style="display:none;color:#f43f5e;font-size:0.7rem">🔴 <span class="mqAudTime">0:00</span></span>`;
             } else if (q.type === 'match') {
                 const existingMatches = sa.matchAnswers || {};
@@ -2782,6 +2942,7 @@
         let mqRecordSecs = 0;
         let mqAudioBlob = null;
         let mqCurrentQ = null;
+        let mqMicStream = null;
 
         function toggleMultiAudio(btn, qid) {
             if (mqIsRecording) {
@@ -2791,25 +2952,30 @@
                 document.querySelectorAll('.mqAudBtn').forEach(b => b.textContent = '🎤 تسجيل (90 ث)');
                 return;
             }
+            if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { showStudentToast(window.isSecureContext ? '❌ التسجيل غير مدعوم' : secureCtxMsg()); return; }
             mqCurrentQ = qid;
             mqAudioChunks = [];
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mqMicStream = stream;
                 const opts = { mimeType: 'audio/webm;codecs=opus' };
                 try { mqMediaRecorder = new MediaRecorder(stream, opts); }
                 catch(e) { mqMediaRecorder = new MediaRecorder(stream); }
                 mqMediaRecorder.ondataavailable = e => { if (e.data.size > 0) mqAudioChunks.push(e.data); };
                 mqMediaRecorder.onstop = () => {
-                    mqAudioBlob = new Blob(mqAudioChunks, { type: 'audio/webm' });
+                    mqAudioBlob = new Blob(mqAudioChunks, { type: mqMediaRecorder ? (mqMediaRecorder.mimeType || 'audio/webm') : 'audio/webm' });
                     const reader = new FileReader();
                     reader.onloadend = () => {
                         const prev = document.querySelector(`.mqAudPrev[data-q="${qid}"]`);
-                        prev.innerHTML = `<audio controls src="${reader.result}" style="width:100%;height:24px;border-radius:4px"></audio>`;
+                        prev.innerHTML = '';
+                        attachAudioPlayer(prev, reader.result);
                         prev.dataset.audiodata = reader.result;
                         mqAudioBlobs[qid] = reader.result;
                     };
                     reader.readAsDataURL(mqAudioBlob);
                     stream.getTracks().forEach(t => t.stop());
+                    mqMicStream = null;
                 };
+                mqMediaRecorder.onerror = () => { if (mqMediaRecorder) mqMediaRecorder.stop(); };
                 mqMediaRecorder.start();
                 mqIsRecording = true;
                 btn.textContent = '🔴 إيقاف';
@@ -2823,7 +2989,7 @@
                     if (timeEl) timeEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
                     if (mqRecordSecs >= 90) { if (mqMediaRecorder) mqMediaRecorder.stop(); }
                 }, 1000);
-            }).catch(() => showStudentToast('❌ لا يمكن الوصول إلى المايكروفون'));
+            }).catch(err => showStudentToast(micErrorText(err)));
         }
 
         let mqAudioBlobs = {};
@@ -3010,11 +3176,14 @@
         let iaStudentRecordTimer = null;
         let iaStudentRecordSecs = 0;
         let iaStudentAudioBlob = null;
+        let iaStudentMicStream = null;
 
         function toggleStudentIARecording() {
             if (iaStudentIsRecording) { stopStudentIARecording(); return; }
+            if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { showStudentToast(window.isSecureContext ? '❌ التسجيل غير مدعوم' : secureCtxMsg()); return; }
             iaStudentAudioChunks = [];
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                iaStudentMicStream = stream;
                 const opts = { mimeType: 'audio/webm;codecs=opus' };
                 try { iaStudentMediaRecorder = new MediaRecorder(stream, opts); }
                 catch(e) { iaStudentMediaRecorder = new MediaRecorder(stream); }
@@ -3023,13 +3192,17 @@
                     iaStudentAudioBlob = new Blob(iaStudentAudioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        document.getElementById('iaStudentAudioPreview').innerHTML = `<audio controls src="${reader.result}" style="width:100%;height:36px;border-radius:8px"></audio>`;
-                        document.getElementById('iaStudentAudioPreview').classList.remove('hidden');
+                        const prev = document.getElementById('iaStudentAudioPreview');
+                        prev.innerHTML = '';
+                        attachAudioPlayer(prev, reader.result);
+                        prev.classList.remove('hidden');
                         document.getElementById('iaStudentAudioSubmit').classList.remove('hidden');
                     };
                     reader.readAsDataURL(iaStudentAudioBlob);
                     stream.getTracks().forEach(t => t.stop());
+                    iaStudentMicStream = null;
                 };
+                iaStudentMediaRecorder.onerror = () => { stopStudentIARecording(); };
                 iaStudentMediaRecorder.start();
                 iaStudentIsRecording = true;
                 iaStudentRecordSecs = 0;
@@ -3044,7 +3217,7 @@
                     document.getElementById('iaStudentRecordTime').textContent = m + ':' + (s < 10 ? '0' : '') + s;
                     if (iaStudentRecordSecs >= 90) stopStudentIARecording();
                 }, 1000);
-            }).catch(() => showStudentToast('❌ لا يمكن الوصول إلى المايكروفون'));
+            }).catch(err => showStudentToast(micErrorText(err)));
         }
 
         function stopStudentIARecording() {
@@ -3359,6 +3532,7 @@
                 const ans = ansSnap.val();
             const typeIcons = { text:'📝', mcq:'🔘', truefalse:'✅', image:'📷', audio:'🎤', match:'🧩', order:'🔄', multiselect:'☑️', fillblank:'✍️', worksheet:'🖼️', crossword:'🧩' };
             let resultHtml = '';
+            const resultAudioSlots = [];
                 if (a.multi) {
                     // Multi-question result
                     const questions = a.questions || [];
@@ -3388,8 +3562,10 @@
                             ansDisplay = `<div style="white-space:pre-wrap;background:rgba(255,255,255,0.04);padding:6px;border-radius:6px;margin:2px 0;color:#ef4444;font-size:0.85rem">${escapeHtml(sa.answerText || '')}</div>`;
                         } else if (q.type === 'image') {
                             ansDisplay = sa.imageUrl ? `<img src="${sa.imageUrl}" style="max-width:100px;max-height:100px;border-radius:6px" />` : '—';
+                            if (sa.correctedImage) ansDisplay += `<div class="text-xs text-white/50 mt-1">التصحيح: <img src="${sa.correctedImage}" style="max-width:100px;max-height:100px;border-radius:6px;border:2px solid rgba(16,185,129,0.3)" /></div>`;
                         } else if (q.type === 'audio') {
-                            ansDisplay = sa.audioBase64 ? `<audio controls src="${sa.audioBase64}" style="width:100%;height:24px;border-radius:4px"></audio>` : '—';
+                            if (sa.audioBase64) { ansDisplay = '<div class="aud-slot"></div>'; resultAudioSlots.push(sa.audioBase64); }
+                            else ansDisplay = '—';
                         } else if (q.type === 'order') {
                             const correctOrder = q.orderItems ? q.orderItems.map((_, i) => i + 1) : [];
                             const userOrder = sa.orderAnswer || {};
@@ -3495,7 +3671,7 @@
                         <div class="text-white/60 text-xs">${a.pointsPerCorrect || 10} نقطة لكل إجابة صحيحة</div>
                     </div>`;
                     if (a.questionImageUrl) resultHtml += `<div class="mb-2"><img src="${a.questionImageUrl}" style="max-width:200px;max-height:200px;border-radius:8px" /></div>`;
-                    if (a.questionAudioBase64) resultHtml += `<div class="mb-2"><audio controls src="${a.questionAudioBase64}" style="width:100%;height:36px;border-radius:6px"></audio></div>`;
+                    if (a.questionAudioBase64) { resultHtml += '<div class="mb-2"><div class="aud-slot"></div></div>'; resultAudioSlots.push(a.questionAudioBase64); }
                     let isCorrect = false;
                     let gradeDisplay = '';
                     if (a.questionType === 'mcq') {
@@ -3547,9 +3723,10 @@
                         const g = ans.grade !== undefined && ans.grade !== null ? ans.grade : '⏳';
                         gradeDisplay = `<div class="ia-answer">
                             <div class="text-sm"><span class="text-white/60">تسجيلك:</span></div>
-                            <audio controls src="${ans.audioBase64}" style="width:100%;height:36px;border-radius:8px;margin:4px 0"></audio>
+                            <div class="aud-slot" style="margin:4px 0"></div>
                             <div class="text-xs mt-1 text-white/70">📊 الدرجة: <b>${g}/10</b></div>
                         </div>`;
+                        if (ans.audioBase64) resultAudioSlots.push(ans.audioBase64);
                     }
                     resultHtml += gradeDisplay;
                     if (a.rankings && a.rankings[sn]) {
@@ -3560,6 +3737,7 @@
                 }
                 resultHtml += `<div class="flex gap-2 mt-4"><button class="btn-secondary btn-xs" onclick="loadStudentAssignments()">🔙 رجوع</button></div>`;
                 container.innerHTML = resultHtml;
+                container.querySelectorAll('.aud-slot').forEach((s, i) => attachAudioPlayer(s, resultAudioSlots[i]));
             });
         }
 
@@ -3636,6 +3814,70 @@
                         </div>
                     </div>`;
                 container.appendChild(div);
+                const back = document.createElement('button');
+                back.className = 'btn-secondary btn-sm mt-3';
+                back.onclick = loadStudentAssignments;
+                back.textContent = '🔙 رجوع';
+                container.appendChild(back);
+            });
+        }
+
+        // ===== STUDENT POINTS PERIODS (read-only) =====
+        function showStudentPeriods() {
+            if (!currentStudent) return;
+            document.getElementById('studentIAHead').classList.add('hidden');
+            if (studentIAInterval) { clearInterval(studentIAInterval); studentIAInterval = null; }
+            const container = document.getElementById('studentIAContent');
+            container.innerHTML = '<div class="empty-state">⏳ جاري التحميل...</div>';
+            const group = currentStudent.group;
+            const sn = currentStudent.studentNumber;
+            Promise.all([
+                new Promise(res => db.ref('config/periods/' + group).once('value', res)),
+                new Promise(res => db.ref('scorePeriods/' + group).once('value', res))
+            ]).then(([confSnap, periodsSnap]) => {
+                container.innerHTML = '';
+                const conf = confSnap.val();
+                const currentNum = (conf && conf.current) || 1;
+                const head = document.createElement('div');
+                head.className = 'glass p-4 rounded-xl text-center mb-4';
+                head.innerHTML = `<span class="text-cyan-400 font-bold text-lg">🎖️ الفترة الحالية: ${currentNum}</span>
+                    <div class="text-white/50 text-xs mt-1">الفترات المغلقة تظهر هنا مع المكرمين</div>`;
+                container.appendChild(head);
+                if (!periodsSnap.exists()) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.textContent = 'لا توجد فترات مغلقة بعد';
+                    container.appendChild(empty);
+                } else {
+                    const periods = [];
+                    periodsSnap.forEach(child => {
+                        const d = child.val();
+                        periods.push({ key: child.key, closedAt: d.closedAt || 0, entries: d.entries || {}, honored: d.honored || {} });
+                    });
+                    periods.sort((a, b) => (b.closedAt || 0) - (a.closedAt || 0));
+                    periods.forEach(p => {
+                        const myEntry = p.entries[sn] || null;
+                        const honoredNames = Object.keys(p.honored).map(k => p.honored[k]);
+                        const iAmHonored = p.honored[sn];
+                        const entriesArr = Object.keys(p.entries).map(k => ({ sn: k, points: p.entries[k].points || 0 }));
+                        entriesArr.sort((a, b) => (b.points || 0) - (a.points || 0));
+                        const myRank = entriesArr.findIndex(e => e.sn === sn);
+                        const card = document.createElement('div');
+                        card.className = 'ia-card closed';
+                        card.innerHTML = `
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="tag closed">🎖️ الفترة ${p.key}</span>
+                                <span class="text-white/40 text-xs">${new Date(p.closedAt).toLocaleDateString('ar-EG')}</span>
+                            </div>
+                            <div class="mt-1 flex items-center gap-2 flex-wrap">
+                                ${myEntry ? `<span class="text-cyan-400 font-bold">🏆 ${myEntry.points || 0} نقطة</span>` : '<span class="text-white/40 text-xs">لم تشارك في هذه الفترة</span>'}
+                                ${myRank >= 0 ? `<span class="text-white/50 text-xs">📊 ترتيبك: #${myRank + 1}</span>` : ''}
+                                ${iAmHonored ? '<span class="text-amber-400 font-bold">🏅 مكرم</span>' : ''}
+                                ${honoredNames.length ? `<span class="text-amber-400 text-xs">🏅 المكرمون: ${escapeHtml(honoredNames.join('، '))}</span>` : ''}
+                            </div>`;
+                        container.appendChild(card);
+                    });
+                }
                 const back = document.createElement('button');
                 back.className = 'btn-secondary btn-sm mt-3';
                 back.onclick = loadStudentAssignments;
@@ -3974,16 +4216,22 @@
             overlay.className = 'notif-popup-overlay';
             overlay.id = 'notifPopupOverlay';
             const certBtn = (n.category === 'certificate' && n.certId) ? '<button class="notif-popup-close" onclick="closeNotifPopup();setTimeout(function(){showCertPreview(\'' + n.certId + '\')},100)" style="margin-top:8px;background:rgba(56,189,248,0.2);color:#38bdf8;border-color:rgba(56,189,248,0.3)">🏅 عرض الشهادة</button>' : '';
+            const notifEmoji = { attendance:'📋', homework:'📚', instant:'⚡', exam:'📝', dictation:'✍️', reading:'📖', payment:'💰', certificate:'🏅', star:'⭐', general:'🔔' };
+            const notifLabel = n.category && notifEmoji[n.category] ? notifEmoji[n.category] : '🔔';
             overlay.innerHTML = '<div class="notif-popup">' +
-                '<h3>🔔 ' + escapeHtml(n.title) + '</h3>' +
+                '<h3>' + notifLabel + ' ' + escapeHtml(n.title) + '</h3>' +
                 '<p style="color:rgba(255,255,255,0.8);font-size:0.95rem;margin-bottom:12px">' + escapeHtml(n.message) + '</p>' +
                 (n.imageUrl ? '<img src="' + n.imageUrl + '" style="max-width:100%;border-radius:8px;margin-bottom:8px" />' : '') +
-                (n.audioBase64 ? '<audio controls src="' + n.audioBase64 + '" style="width:100%;height:30px;border-radius:6px;margin-bottom:8px"></audio>' : '') +
+                (n.audioBase64 ? '<div class="aud-slot" style="margin-bottom:8px"></div>' : '') +
                 '<div style="color:rgba(255,255,255,0.4);font-size:0.8rem;margin-bottom:12px">' + (n.date || '') + ' ' + (n.time || '') + ' | من: ' + escapeHtml(n.sender || 'المعلم') + '</div>' +
                 certBtn +
                 '<button class="notif-popup-close" onclick="closeNotifPopup()" style="margin-top:4px">✅ تم القراءة</button>' +
                 '</div>';
             document.body.appendChild(overlay);
+            if (n.audioBase64) {
+                const slot = overlay.querySelector('.aud-slot');
+                if (slot) attachAudioPlayer(slot, n.audioBase64);
+            }
         }
 
         function closeNotifPopup() {
@@ -3997,7 +4245,13 @@
 
         function initNotifPopupListener() {
             if (notifListener || !currentStudent) return;
-            notifListener = db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').limitToLast(3);
+            db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('seen').equalTo(false).once('value', s2 => {
+                if (!s2.exists()) return;
+                const list = [];
+                s2.forEach(c => { const v = c.val(); v.key = c.key; list.push(v); });
+                showNotifPopup(list.reverse());
+            });
+            notifListener = db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').limitToLast(1);
             notifListener.on('child_added', snap => {
                 if (!snap.exists()) return;
                 const n = snap.val();
@@ -4120,6 +4374,7 @@
                 if (!snap.exists()) return;
                 const allAwards = [];
                 snap.forEach(studentNum => {
+                    if (studentNum.key !== currentStudent.studentNumber) return;
                     if (!studentNum.val()) return;
                     Object.keys(studentNum.val()).forEach(k => {
                         const a = studentNum.val()[k];
@@ -4295,7 +4550,6 @@
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <div id="notifPopupContainer"></div>
 </body>
 </html>
