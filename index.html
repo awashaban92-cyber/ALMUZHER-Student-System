@@ -540,7 +540,6 @@
         .emoji-picker button { background:none; border:none; font-size:1.5rem; cursor:pointer; padding:4px; border-radius:6px; transition:all .2s; }
         .emoji-picker button:hover { background:rgba(255,255,255,0.1); transform:scale(1.2); }
         .ia-card { padding:16px; border-radius:16px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.08); transition:all .3s; }
-        .ia-qblock { padding:12px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); margin-bottom:8px; }
         .ia-card:hover { border-color:rgba(99,102,241,0.3); }
         .ia-card.open { border-right:4px solid #f43f5e; }
         .ia-card.closed { border-right:4px solid #10b981; }
@@ -554,14 +553,82 @@
         .lb-item.medal { border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); }
         .ia-timer { font-size:1.2rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .ia-timer.urgent { color:#f43f5e; animation:pulse 1s infinite; }
-        .ia-option { padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.08); cursor:pointer; transition:all .2s; text-align:right; color:#ef4444; }
-        .ia-option:hover { background:rgba(255,255,255,0.08); }
-        .ia-option.selected { border-color:rgba(99,102,241,0.6); background:rgba(99,102,241,0.15); }
-        .ia-option.correct { border-color:rgba(16,185,129,0.6); background:rgba(16,185,129,0.15); }
-        .ia-option.wrong { border-color:rgba(244,63,94,0.6); background:rgba(244,63,94,0.15); }
+        /* ===== Question Cards (redesigned) ===== */
+        .ia-qblock {
+            margin-bottom:18px;
+            border-radius:16px;
+            overflow:hidden;
+            background:rgba(255,255,255,0.05);
+            border:1.5px solid rgba(255,255,255,0.12);
+            box-shadow:0 6px 24px rgba(0,0,0,0.25);
+            transition:all .25s ease;
+        }
+        .ia-qblock:hover { border-color:rgba(99,102,241,0.4); }
+        .ia-qhead {
+            display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+            padding:12px 16px;
+            background:linear-gradient(135deg,rgba(99,102,241,0.22),rgba(6,182,212,0.1));
+            border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+        .ia-qnum {
+            flex:none; width:34px; height:34px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,#6366f1,#8b5cf6);
+            color:#fff; font-weight:800; font-size:1rem;
+            box-shadow:0 2px 12px rgba(99,102,241,0.5);
+        }
+        .ia-qtype { flex:none; font-size:1.15rem; }
+        .ia-qtext {
+            flex:1; min-width:120px;
+            color:#fff; font-weight:700; font-size:1rem; line-height:1.7;
+        }
+        .ia-qpoints {
+            flex:none; font-size:0.75rem; font-weight:700;
+            color:#fbbf24; background:rgba(251,191,36,0.15);
+            border:1px solid rgba(251,191,36,0.3);
+            padding:3px 12px; border-radius:9999px;
+        }
+        .ia-qbody { padding:14px 16px; }
+        .ia-qhead-text { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        /* Type color accents on question card top border */
+        .ia-qblock.q-text { border-top:3px solid #6366f1; }
+        .ia-qblock.q-mcq { border-top:3px solid #0ea5e9; }
+        .ia-qblock.q-truefalse { border-top:3px solid #10b981; }
+        .ia-qblock.q-image { border-top:3px solid #ec4899; }
+        .ia-qblock.q-audio { border-top:3px solid #a855f7; }
+        .ia-qblock.q-match { border-top:3px solid #f59e0b; }
+        .ia-qblock.q-order { border-top:3px solid #06b6d4; }
+        .ia-qblock.q-multiselect { border-top:3px solid #14b8a6; }
+        .ia-qblock.q-fillblank { border-top:3px solid #f97316; }
+        .ia-qblock.q-worksheet { border-top:3px solid #22c55e; }
+        .ia-qblock.q-crossword { border-top:3px solid #eab308; }
+        /* Question answer options */
+        .ia-option {
+            display:flex; align-items:center; gap:10px;
+            padding:12px 14px; border-radius:12px;
+            background:rgba(255,255,255,0.05);
+            border:2px solid rgba(255,255,255,0.1);
+            cursor:pointer; transition:all .2s; text-align:right;
+            color:#fff; font-weight:600; font-size:0.95rem;
+            margin-bottom:8px;
+        }
+        .ia-option:hover { background:rgba(255,255,255,0.1); border-color:rgba(99,102,241,0.4); transform:translateY(-1px); }
+        .ia-option.selected { border-color:#6366f1; background:rgba(99,102,241,0.2); box-shadow:0 0 0 3px rgba(99,102,241,0.18); }
+        .ia-option.correct { border-color:#10b981; background:rgba(16,185,129,0.18); }
+        .ia-option.wrong { border-color:#f43f5e; background:rgba(244,63,94,0.18); }
+        .opt-letter {
+            flex:none; width:26px; height:26px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(255,255,255,0.12); color:#fff;
+            font-weight:800; font-size:0.8rem;
+        }
+        .ia-option.selected .opt-letter { background:#6366f1; }
+        .opt-text { flex:1; }
         .match-pair { display:flex; gap:8px; align-items:center; margin:6px 0; }
-        .match-pair select { flex:1; padding:8px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#ef4444; font-family:inherit; }
-        .match-pair select option { color:#ef4444; background:#1a1f2e; }
+        .match-pair select { flex:1; padding:8px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#fff; font-family:inherit; }
+        .match-pair select option { color:#fff; background:#1a1f2e; }
+        .mqFill, .mqOrder, .mqMatch, .mqText, .mqCwCell, .mqWsField { color:#fff !important; }
+        .mqFill option, .mqOrder option, .mqMatch option { color:#fff; background:#1a1f2e; }
         .chat-type-card {
             flex:1; padding:16px; border-radius:16px; cursor:pointer; transition:all .3s ease;
             background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.08);
@@ -1770,8 +1837,10 @@
             const badge = document.getElementById('requiredHwBadge');
             if (!badge || !currentStudent) return;
             const sn = currentStudent.studentNumber;
-            db.ref(`notifications/${currentStudent.group}/${sn}`).orderByChild('seen').equalTo(false).once('value', snap => {
-                if (snap.exists()) badge.classList.remove('hidden');
+            db.ref(`notifications/${currentStudent.group}/${sn}`).orderByChild('createdAt').once('value', snap => {
+                let hasUnread = false;
+                if (snap.exists()) snap.forEach(c => { const v = c.val(); if (!v.seen) hasUnread = true; });
+                if (hasUnread) badge.classList.remove('hidden');
                 else badge.classList.add('hidden');
             });
         }
@@ -1790,11 +1859,11 @@
             if (!currentStudent) return;
             const sn = currentStudent.studentNumber;
             const ref = db.ref(`notifications/${currentStudent.group}/${sn}`);
-            ref.orderByChild('seen').equalTo(false).once('value', snap => {
+            ref.orderByChild('createdAt').once('value', snap => {
                 if (!snap.exists()) return;
                 const updates = {};
-                snap.forEach(child => { updates[child.key + '/seen'] = true; });
-                ref.update(updates);
+                snap.forEach(child => { const v = child.val(); if (!v.seen) updates[child.key + '/seen'] = true; });
+                if (Object.keys(updates).length) ref.update(updates);
                 document.getElementById('requiredHwBadge').classList.add('hidden');
             });
         }
@@ -1813,8 +1882,10 @@
         function checkNotifUnread() {
             const badge = document.getElementById('notifTabBadge');
             if (!badge || !currentStudent) return;
-            db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('seen').equalTo(false).once('value', snap => {
-                badge.style.display = snap.exists() ? 'flex' : 'none';
+            db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').once('value', snap => {
+                let hasUnread = false;
+                if (snap.exists()) snap.forEach(c => { const v = c.val(); if (!v.seen) hasUnread = true; });
+                badge.style.display = hasUnread ? 'flex' : 'none';
             });
         }
 
@@ -1864,11 +1935,11 @@
         function markNotifSeen() {
             if (!currentStudent) return;
             const ref = db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`);
-            ref.orderByChild('seen').equalTo(false).once('value', snap => {
+            ref.orderByChild('createdAt').once('value', snap => {
                 if (!snap.exists()) return;
                 const updates = {};
-                snap.forEach(child => { updates[child.key + '/seen'] = true; });
-                ref.update(updates);
+                snap.forEach(child => { const v = child.val(); if (!v.seen) updates[child.key + '/seen'] = true; });
+                if (Object.keys(updates).length) ref.update(updates);
                 document.getElementById('notifTabBadge').style.display = 'none';
             });
         }
@@ -2692,18 +2763,34 @@
             if (editing) container.innerHTML = '<div class="text-amber-400 text-xs mb-2">✏️ تعديل الإجابة</div>';
             if (!isMulti) {
                 // Single-question format (old)
-                let html = `<div class="text-red-400 text-sm mb-3">${escapeHtml(a.questionText || a.title || '')}</div>`;
-                if (a.questionImageUrl) html += `<div class="mb-3"><img src="${a.questionImageUrl}" style="max-width:200px;max-height:200px;border-radius:8px" /></div>`;
+                const typeIcons = { text:'📝', mcq:'🔘', truefalse:'✅', image:'📷', audio:'🎤', match:'🧩' };
+                let html = `<div class="ia-qblock q-${a.questionType || 'text'}">
+                    <div class="ia-qhead">
+                        <span class="ia-qnum">1</span>
+                        <span class="ia-qtype">${typeIcons[a.questionType] || '📝'}</span>
+                        <span class="ia-qtext">${escapeHtml(a.questionText || a.title || '')}</span>
+                        <span class="ia-qpoints">🏆 ${a.pointsPerCorrect || 10} ن</span>
+                    </div>
+                    <div class="ia-qbody">`;
+                if (a.questionImageUrl) html += `<div class="mb-3"><img src="${a.questionImageUrl}" style="max-width:220px;max-height:220px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)" /></div>`;
                 const audioSlots = [];
                 if (a.questionAudioBase64) { html += `<div class="mb-3"><div class="aud-slot"></div></div>`; audioSlots.push(a.questionAudioBase64); }
                 html += singleQuestionFormHTML(assignKey, a, existingAnswer, audioSlots);
+                html += `</div></div>`;
                 html += `<button class="btn-secondary btn-xs mt-3" onclick="loadStudentAssignments()">🔙 رجوع</button>`;
                 container.innerHTML = html;
                 container.querySelectorAll('.aud-slot').forEach((s, i) => attachAudioPlayer(s, audioSlots[i]));
             } else {
                 // Multi-question format
                 const questions = a.questions || [];
-                let html = `<div class="text-cyan-400 text-sm mb-3 font-bold">${escapeHtml(a.title || '')} (${questions.length} أسئلة)</div>`;
+                const totalPoints = questions.reduce((s, q) => s + (q.points || 0), 0);
+                let html = `<div class="ia-qblock q-multiselect">
+                    <div class="ia-qhead">
+                        <span class="ia-qnum">📚</span>
+                        <span class="ia-qtext">${escapeHtml(a.title || '')}</span>
+                        <span class="ia-qpoints">${questions.length} أسئلة • ${totalPoints} ن</span>
+                    </div>
+                    <div class="ia-qbody">`;
                 let allAutoGrade = true;
                 const audioSlots = [];
                 questions.forEach((q, qi) => {
@@ -2714,6 +2801,7 @@
                 html += `<button class="btn-primary mt-4 w-full" onclick="submitMultiAnswer('${assignKey}')">${editing ? '💾 حفظ التعديلات' : '📨 إرسال الإجابات'}</button>`;
                 html += `<button class="btn-secondary btn-xs mt-2" onclick="loadStudentAssignments()">🔙 رجوع</button>`;
                 html += `<div id="iaMultiMsg" class="text-sm mt-2"></div>`;
+                html += `</div></div>`;
                 container.innerHTML = html;
                 container.querySelectorAll('.aud-slot').forEach((s, i) => attachAudioPlayer(s, audioSlots[i]));
             }
@@ -2722,30 +2810,31 @@
         function singleQuestionFormHTML(assignKey, a, existingAnswer, audioSlots) {
             const type = a.questionType;
             const editing = existingAnswer && existingAnswer.submittedAt;
+            const letters = ['أ','ب','ج','د','هـ','و'];
             let html = '';
             if (type === 'text') {
                 const val = existingAnswer ? existingAnswer.answerText || '' : '';
-                html += `<textarea id="iaStudentTextAnswer" rows="4" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#ef4444;font-family:inherit;outline:none" placeholder="اكتب إجابتك...">${escapeHtml(val)}</textarea>
+                html += `<textarea id="iaStudentTextAnswer" rows="4" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:inherit;outline:none;font-size:0.95rem" placeholder="اكتب إجابتك...">${escapeHtml(val)}</textarea>
                     <button class="btn-primary mt-3" onclick="submitTextAnswer('${assignKey}')">${editing ? '💾 حفظ التعديل' : 'إرسال الإجابة'}</button>`;
             } else if (type === 'mcq') {
                 const selectedIdx = existingAnswer ? existingAnswer.selectedOption : -1;
                 (a.mcqOptions || []).forEach((opt, i) => {
-                    html += `<div class="ia-option ${i === selectedIdx ? 'selected' : ''}" onclick="selectMcqOption(this, ${i})">${escapeHtml(opt)}</div>`;
+                    html += `<div class="ia-option ${i === selectedIdx ? 'selected' : ''}" onclick="selectMcqOption(this, ${i})"><span class="opt-letter">${letters[i] || (i + 1)}</span><span class="opt-text">${escapeHtml(opt)}</span></div>`;
                 });
                 html += `<input type="hidden" id="iaStudentMcqSelected" value="${selectedIdx}" />
                     <button class="btn-primary mt-3" onclick="submitMcqAnswer('${assignKey}')">${editing ? '💾 حفظ التعديل' : 'إرسال الإجابة'}</button>`;
             } else if (type === 'truefalse') {
                 const selected = existingAnswer ? existingAnswer.selectedTrueFalse : null;
                 html += `<div class="flex gap-3">
-                        <div class="ia-option flex-1 text-center ${selected === true ? 'selected' : ''}" onclick="selectMcqOption(this, true)" style="justify-content:center">✅ صح</div>
-                        <div class="ia-option flex-1 text-center ${selected === false ? 'selected' : ''}" onclick="selectMcqOption(this, false)" style="justify-content:center">❌ خطأ</div>
+                        <div class="ia-option flex-1 text-center ${selected === true ? 'selected' : ''}" onclick="selectMcqOption(this, true)" style="justify-content:center"><span class="opt-letter">✅</span> صح</div>
+                        <div class="ia-option flex-1 text-center ${selected === false ? 'selected' : ''}" onclick="selectMcqOption(this, false)" style="justify-content:center"><span class="opt-letter">❌</span> خطأ</div>
                     </div>
                     <input type="hidden" id="iaStudentTfSelected" value="${selected === null ? '' : selected}" />
                     <button class="btn-primary mt-3" onclick="submitTfAnswer('${assignKey}')">${editing ? '💾 حفظ التعديل' : 'إرسال الإجابة'}</button>`;
             } else if (type === 'image') {
                 html += `<div class="space-y-3">
-                        <div><input type="file" id="iaStudentImageInput" accept="image/*" onchange="previewStudentImage(this.files[0])" style="color:#ef4444;font-family:inherit" /></div>
-                        ${existingAnswer && existingAnswer.imageUrl ? `<div class="text-red-400/70 text-xs">الإجابة السابقة: <img src="${existingAnswer.imageUrl}" style="max-width:100px;max-height:100px;border-radius:6px;display:block;margin-top:4px" /></div>` : ''}
+                        <div><input type="file" id="iaStudentImageInput" accept="image/*" onchange="previewStudentImage(this.files[0])" style="color:#fff;font-family:inherit" /></div>
+                        ${existingAnswer && existingAnswer.imageUrl ? `<div class="text-white/60 text-xs">الإجابة السابقة: <img src="${existingAnswer.imageUrl}" style="max-width:100px;max-height:100px;border-radius:6px;display:block;margin-top:4px" /></div>` : ''}
                         <div id="iaStudentImagePreview"></div>
                         <button class="btn-primary" onclick="submitImageAnswer('${assignKey}')">${editing ? '💾 حفظ التعديل' : 'إرسال الصورة'}</button>
                     </div>`;
@@ -2753,7 +2842,7 @@
                 html += `<div class="space-y-3">
                         <button class="btn-secondary" id="iaStudentRecordBtn" onclick="toggleStudentIARecording()">🎤 تسجيل صوتي (90 ث)</button>`;
                 if (existingAnswer && existingAnswer.audioBase64) {
-                    html += '<div class="text-red-400/70 text-xs">التسجيل السابق: <div class="aud-slot"></div></div>';
+                    html += '<div class="text-white/60 text-xs">التسجيل السابق: <div class="aud-slot"></div></div>';
                     audioSlots.push(existingAnswer.audioBase64);
                 }
                 html += `<div id="iaStudentAudioPreview" class="hidden"></div>
@@ -2766,10 +2855,10 @@
                 (a.matchLeft || []).forEach((left, i) => {
                     const selectedVal = existingMatches[i] !== undefined ? existingMatches[i] : '';
                     html += `<div class="match-pair">
-                            <span style="font-weight:700;color:#ef4444;min-width:60px">${escapeHtml(left)}</span>
-                            <select id="iaMatchSelect_${i}" class="flex-1 p-2 rounded-xl bg-white/5 border border-white/10 text-red-400 outline-none" style="font-family:inherit">
+                            <span style="font-weight:700;color:#fff;min-width:60px;font-size:0.9rem">${escapeHtml(left)}</span>
+                            <select id="iaMatchSelect_${i}" class="flex-1 p-2 rounded-xl bg-white/5 border border-white/15 text-white outline-none" style="font-family:inherit;font-size:0.9rem">
                                 <option value="">-- اختر --</option>
-                                ${rightShuffled.map((r, j) => `<option value="${j}" ${selectedVal == j ? 'selected' : ''} style="color:#ef4444">${escapeHtml(r)}</option>`).join('')}
+                                ${rightShuffled.map((r, j) => `<option value="${j}" ${selectedVal == j ? 'selected' : ''} style="color:#fff">${escapeHtml(r)}</option>`).join('')}
                             </select>
                         </div>`;
                 });
@@ -2780,35 +2869,42 @@
 
         function renderStudentSingleQuestion(q, qi, assignKey, sa, audioSlots) {
             const typeIcons = { text:'📝', mcq:'🔘', truefalse:'✅', image:'📷', audio:'🎤', match:'🧩', order:'🔄', multiselect:'☑️', fillblank:'✍️', worksheet:'🖼️', crossword:'🧩' };
-            let html = `<div class="ia-qblock" data-multi-q="${q.id}" style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);margin-bottom:12px">
-                <div class="text-red-400 text-sm font-bold mb-2">${typeIcons[q.type]||'📝'} سؤال ${qi+1}: ${escapeHtml(q.text||'')} <span class="text-white/40 text-xs">(${q.points||0} ن)</span></div>`;
-            if (q.imageUrl) html += `<div class="mb-2"><img src="${q.imageUrl}" style="max-width:150px;max-height:150px;border-radius:8px" /></div>`;
-            if (q.audioBase64) { html += '<div class="mb-2"><div class="aud-slot"></div></div>'; audioSlots.push(q.audioBase64); }
+            const letters = ['أ','ب','ج','د','هـ','و'];
+            let html = `<div class="ia-qblock q-${q.type || 'text'}" data-multi-q="${q.id}">
+                <div class="ia-qhead">
+                    <span class="ia-qnum">${qi + 1}</span>
+                    <span class="ia-qtype">${typeIcons[q.type] || '📝'}</span>
+                    <span class="ia-qtext">${escapeHtml(q.text || '')}</span>
+                    <span class="ia-qpoints">🏆 ${q.points || 0} ن</span>
+                </div>
+                <div class="ia-qbody">`;
+            if (q.imageUrl) html += `<div class="mb-3"><img src="${q.imageUrl}" style="max-width:220px;max-height:220px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)" /></div>`;
+            if (q.audioBase64) { html += '<div class="mb-3"><div class="aud-slot"></div></div>'; audioSlots.push(q.audioBase64); }
             const qid = 'mq_' + qi;
             if (q.type === 'text') {
                 const val = sa.answerText || '';
-                html += `<textarea class="mqText" data-q="${q.id}" rows="2" style="width:100%;padding:10px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#ef4444;font-family:inherit;outline:none" placeholder="اكتب إجابتك...">${escapeHtml(val)}</textarea>`;
+                html += `<textarea class="mqText" data-q="${q.id}" rows="2" style="width:100%;padding:12px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:inherit;outline:none;font-size:0.95rem" placeholder="اكتب إجابتك...">${escapeHtml(val)}</textarea>`;
             } else if (q.type === 'mcq') {
                 const selectedIdx = sa.selectedOption !== undefined ? sa.selectedOption : -1;
                 (q.mcqOptions || []).forEach((opt, oi) => {
-                    html += `<div class="ia-option ${oi === selectedIdx ? 'selected' : ''}" onclick="selectMultiMcq(this, '${q.id}', ${oi})" data-q="${q.id}" data-val="${oi}">${escapeHtml(opt)}</div>`;
+                    html += `<div class="ia-option ${oi === selectedIdx ? 'selected' : ''}" onclick="selectMultiMcq(this, '${q.id}', ${oi})" data-q="${q.id}" data-val="${oi}"><span class="opt-letter">${letters[oi] || (oi + 1)}</span><span class="opt-text">${escapeHtml(opt)}</span></div>`;
                 });
                 html += `<input type="hidden" class="mqMcq" data-q="${q.id}" value="${selectedIdx}" />`;
             } else if (q.type === 'truefalse') {
                 const selected = sa.selectedTrueFalse;
                 html += `<div class="flex gap-2">
-                        <div class="ia-option flex-1 text-center ${selected === true ? 'selected' : ''}" onclick="selectMultiTf(this, '${q.id}', true)" data-q="${q.id}" style="justify-content:center">✅ صح</div>
-                        <div class="ia-option flex-1 text-center ${selected === false ? 'selected' : ''}" onclick="selectMultiTf(this, '${q.id}', false)" data-q="${q.id}" style="justify-content:center">❌ خطأ</div>
+                        <div class="ia-option flex-1 text-center ${selected === true ? 'selected' : ''}" onclick="selectMultiTf(this, '${q.id}', true)" data-q="${q.id}" style="justify-content:center"><span class="opt-letter">✅</span> صح</div>
+                        <div class="ia-option flex-1 text-center ${selected === false ? 'selected' : ''}" onclick="selectMultiTf(this, '${q.id}', false)" data-q="${q.id}" style="justify-content:center"><span class="opt-letter">❌</span> خطأ</div>
                     </div>
                     <input type="hidden" class="mqTf" data-q="${q.id}" value="${selected === null || selected === undefined ? '' : selected}" />`;
             } else if (q.type === 'image') {
-                html += `<div><input type="file" class="mqImage" data-q="${q.id}" accept="image/*" style="color:#ef4444;font-family:inherit" /></div>
-                    ${sa.imageUrl ? `<div class="text-red-400/70 text-xs">السابق: <img src="${sa.imageUrl}" style="max-width:80px;max-height:80px;border-radius:4px;display:block;margin-top:2px" /></div>` : ''}
+                html += `<div><input type="file" class="mqImage" data-q="${q.id}" accept="image/*" style="color:#fff;font-family:inherit" /></div>
+                    ${sa.imageUrl ? `<div class="text-white/60 text-xs">السابق: <img src="${sa.imageUrl}" style="max-width:80px;max-height:80px;border-radius:4px;display:block;margin-top:2px" /></div>` : ''}
                     <div class="mqImgPrev" data-q="${q.id}" style="max-width:100px;max-height:100px"></div>`;
             } else if (q.type === 'audio') {
                 html += `<button type="button" class="btn-secondary btn-xs mqAudBtn" onclick="toggleMultiAudio(this,'${q.id}')">🎤 تسجيل (90 ث)</button>`;
                 if (sa.audioBase64) {
-                    html += '<div class="text-red-400/70 text-xs">السابق: <div class="aud-slot"></div></div>';
+                    html += '<div class="text-white/60 text-xs">السابق: <div class="aud-slot"></div></div>';
                     audioSlots.push(sa.audioBase64);
                 }
                 html += `<div class="mqAudPrev" data-q="${q.id}" style="max-width:100px"></div>
@@ -2819,10 +2915,10 @@
                 (q.matchLeft || []).forEach((left, mi) => {
                     const sv = existingMatches[mi] !== undefined ? existingMatches[mi] : '';
                     html += `<div class="match-pair" style="margin:4px 0">
-                            <span style="font-weight:600;color:#ef4444;min-width:50px;font-size:0.85rem">${escapeHtml(left)}</span>
-                            <select class="mqMatch" data-q="${q.id}" data-mi="${mi}" style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#ef4444;font-family:inherit;font-size:0.8rem">
+                            <span style="font-weight:600;color:#fff;min-width:50px;font-size:0.85rem">${escapeHtml(left)}</span>
+                            <select class="mqMatch" data-q="${q.id}" data-mi="${mi}" style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:inherit;font-size:0.8rem">
                                 <option value="">--</option>
-                                ${rightShuffled.map((r, ri) => `<option value="${ri}" ${sv == ri ? 'selected' : ''} style="color:#ef4444">${escapeHtml(r)}</option>`).join('')}
+                                ${rightShuffled.map((r, ri) => `<option value="${ri}" ${sv == ri ? 'selected' : ''} style="color:#fff">${escapeHtml(r)}</option>`).join('')}
                             </select>
                         </div>`;
                 });
@@ -2833,9 +2929,9 @@
                 shuffled.forEach(({ it: item, i: origIdx }, oi) => {
                     const sv = existingOrder[origIdx] !== undefined ? existingOrder[origIdx] : '';
                     html += `<div style="margin:4px 0;display:flex;align-items:center;gap:6px">
-                            <span class="text-red-400/70 text-xs" style="min-width:18px">${oi+1}.</span>
-                            <span style="flex:1;color:#ef4444;font-size:0.85rem">${escapeHtml(item)}</span>
-                            <input type="number" class="mqOrder" data-q="${q.id}" data-oi="${origIdx}" min="1" max="${shuffled.length}" value="${sv}" placeholder="الترتيب" style="width:60px;padding:6px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#ef4444;font-family:inherit;font-size:0.8rem;text-align:center" />
+                            <span class="text-white/50 text-xs" style="min-width:18px">${oi+1}.</span>
+                            <span style="flex:1;color:#fff;font-size:0.85rem">${escapeHtml(item)}</span>
+                            <input type="number" class="mqOrder" data-q="${q.id}" data-oi="${origIdx}" min="1" max="${shuffled.length}" value="${sv}" placeholder="الترتيب" style="width:60px;padding:6px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:inherit;font-size:0.8rem;text-align:center" />
                         </div>`;
                 });
                 html += `</div>`;
@@ -2843,9 +2939,9 @@
                 const selectedOpts = sa.selectedOptions || [];
                 (q.multiOptions || []).forEach((opt, oi) => {
                     const checked = selectedOpts.includes(oi);
-                    html += `<div class="ia-multi-option" style="margin:4px 0;display:flex;align-items:center;gap:8px">
-                            <input type="checkbox" class="mqMulti" data-q="${q.id}" data-val="${oi}" ${checked?'checked':''} style="width:18px;height:18px;accent-color:#ef4444" />
-                            <span style="color:#ef4444;font-size:0.85rem">${escapeHtml(opt)}</span>
+                    html += `<div class="ia-multi-option" style="margin:4px 0;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px">
+                            <input type="checkbox" class="mqMulti" data-q="${q.id}" data-val="${oi}" ${checked?'checked':''} style="width:18px;height:18px;accent-color:#6366f1" />
+                            <span style="color:#fff;font-size:0.9rem">${escapeHtml(opt)}</span>
                         </div>`;
                 });
             } else if (q.type === 'fillblank') {
@@ -2853,9 +2949,9 @@
                 let filled = (q.fillTemplate || '').replace(/\{(\d+)\}/g, (m, num) => {
                     const fi = parseInt(num) - 1;
                     const val = existingFill[fi] || '';
-                    return `<input type="text" class="mqFill" data-q="${q.id}" data-fi="${fi}" value="${escapeHtml(val)}" style="width:100px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#ef4444;font-family:inherit;text-align:center;font-size:0.85rem" />`;
+                    return `<input type="text" class="mqFill" data-q="${q.id}" data-fi="${fi}" value="${escapeHtml(val)}" style="width:100px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:inherit;text-align:center;font-size:0.85rem" />`;
                 });
-                html += `<div style="color:#ef4444;font-size:0.9rem;line-height:2">${filled}</div>`;
+                html += `<div style="color:#fff;font-size:0.95rem;line-height:2.2">${filled}</div>`;
             } else if (q.type === 'worksheet') {
                 html += `<div class="ws-container" style="position:relative;margin:4px 0;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
                         <img src="${q.imageUrl}" style="width:100%;display:block;pointer-events:none" />
@@ -2863,8 +2959,8 @@
                             ${(q.wsFields || []).map(f => {
                                 const val = (sa.wsAnswers||{})[f.id] || '';
                                 return `<div style="position:absolute;left:${f.x}%;top:${f.y}%;transform:translate(-50%,-50%);pointer-events:auto;text-align:center">
-                                    <div style="font-size:0.55rem;color:rgba(255,255,255,0.4);margin-bottom:1px">${escapeHtml(f.label||'')}</div>
-                                    <input type="text" class="mqWsField" data-q="${q.id}" data-fi="${f.id}" value="${escapeHtml(val)}" style="width:90px;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#ef4444;font-family:inherit;text-align:center;font-size:0.75rem" />
+                                    <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);margin-bottom:1px;background:rgba(0,0,0,0.35);padding:0 4px;border-radius:3px">${escapeHtml(f.label||'')}</div>
+                                    <input type="text" class="mqWsField" data-q="${q.id}" data-fi="${f.id}" value="${escapeHtml(val)}" style="width:90px;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;font-family:inherit;text-align:center;font-size:0.75rem" />
                                 </div>`;
                             }).join('')}
                         </div>
@@ -2894,13 +2990,13 @@
                             if (!info) return `<div style="width:32px;height:32px;background:#111;border-radius:2px"></div>`;
                             const val = cells[key] || '';
                             return `<div style="width:32px;height:32px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:2px;position:relative">
-                                <input type="text" class="mqCwCell" data-q="${q.id}" data-ri="${r}" data-ci="${c}" value="${val}" maxlength="1" style="width:100%;height:100%;background:transparent;border:none;color:#ef4444;font-family:inherit;text-align:center;font-size:0.85rem;outline:none;padding:0" />
+                                <input type="text" class="mqCwCell" data-q="${q.id}" data-ri="${r}" data-ci="${c}" value="${val}" maxlength="1" style="width:100%;height:100%;background:transparent;border:none;color:#fff;font-family:inherit;text-align:center;font-size:0.85rem;outline:none;padding:0" />
                             </div>`;
                         }).join('')).join('')}
                     </div>
                 </div>`;
             }
-            html += `</div>`;
+            html += `</div></div>`;
             return html;
         }
 
@@ -4245,11 +4341,11 @@
 
         function initNotifPopupListener() {
             if (notifListener || !currentStudent) return;
-            db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('seen').equalTo(false).once('value', s2 => {
+            db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').once('value', s2 => {
                 if (!s2.exists()) return;
                 const list = [];
-                s2.forEach(c => { const v = c.val(); v.key = c.key; list.push(v); });
-                showNotifPopup(list.reverse());
+                s2.forEach(c => { const v = c.val(); v.key = c.key; if (!v.seen) list.push(v); });
+                if (list.length) showNotifPopup(list.reverse());
             });
             notifListener = db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').limitToLast(1);
             notifListener.on('child_added', snap => {
@@ -4259,11 +4355,11 @@
                     const badge = document.getElementById('notifTabBadge');
                     if (badge) badge.style.display = 'flex';
                     if (_notifQueue || document.getElementById('notifPopupOverlay')) return;
-                    db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('seen').equalTo(false).once('value', s2 => {
+                    db.ref(`notifications/${currentStudent.group}/${currentStudent.studentNumber}`).orderByChild('createdAt').once('value', s2 => {
                         if (!s2.exists()) return;
                         const list = [];
-                        s2.forEach(c => { const v = c.val(); v.key = c.key; list.push(v); });
-                        showNotifPopup(list.reverse());
+                        s2.forEach(c => { const v = c.val(); v.key = c.key; if (!v.seen) list.push(v); });
+                        if (list.length) showNotifPopup(list.reverse());
                     });
                 }
             });
