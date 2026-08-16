@@ -884,7 +884,8 @@
                         <p id="studentNameDisplay" class="text-white font-bold text-xl leading-tight"></p>
                     </div>
                 </div>
-                <button class="btn-logout" onclick="logout()">🚪 خروج</button>
+                <button class="btn-logout" id="backToTeacherBtn" style="display:none" onclick="backToTeacher()">⬅ عودة لحساب المعلم</button>
+                <button class="btn-logout" id="logoutBtn" onclick="logout()">🚪 خروج</button>
             </div>
 
             <div id="mainScreen" class="main-screen">
@@ -904,6 +905,7 @@
                     <div class="tab-card c13" onclick="openTab('gallery')"><span class="card-icon">📸</span><span class="card-label">صور</span></div>
                     <div class="tab-card c14" onclick="openTab('books')"><span class="card-icon">📄</span><span class="card-label">الكتب والأوراق</span></div>
                     <div class="tab-card c15" onclick="openTab('studentStars')" style="position:relative"><span class="card-icon">⭐</span><span class="card-label">تكريم الطلاب</span></div>
+                    <div class="tab-card c16" onclick="openTab('oldGrades')"><span class="card-icon">📜</span><span class="card-label">سجلي القديم</span></div>
                 </div>
             </div>
 
@@ -1141,6 +1143,15 @@
                     </div>
                 </div>
             </div>
+
+            <div id="tabOldGrades" class="tab-content anim-fade-up anim-fade-up-d2">
+                <div class="glass-strong rounded-2xl p-5 space-y-4">
+                    <h3 class="text-xl font-bold text-white">📜 سجلي القديم</h3>
+                    <div id="studentOldGradesInfo" class="text-white/70 text-sm"></div>
+                    <div id="studentOldGradesList" class="space-y-3"></div>
+                    <div id="studentOldGradesEmpty" class="text-gray-300 text-center py-8 hidden">لم تُنقل من قبل — لا يوجد سجل قديم</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1194,6 +1205,7 @@
 
         // ===== STATE =====
         let currentStudent = null;
+        let isImpersonating = false;
 
         // ===== AUDIO HELPERS =====
         function fixAudioDataUri(uri) {
@@ -1325,12 +1337,21 @@
 
         // ===== SPLASH → LOGIN =====
         window.addEventListener('load', () => {
+            const sp = new URLSearchParams(window.location.search).get('skipSplash');
+            const finish = () => {
+                if (!currentStudent) loginPage.classList.remove('hidden');
+                if (!currentStudent) groupSelect.focus();
+            };
+            if (sp) {
+                splash.style.display = 'none';
+                setTimeout(finish, 1000);
+                return;
+            }
             setTimeout(() => {
                 splash.classList.add('hide');
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    loginPage.classList.remove('hidden');
-                    groupSelect.focus();
+                    finish();
                 }, 700);
             }, 2600);
         });
@@ -1351,6 +1372,29 @@
         loadGroups();
         // Auto-login saved session
         setTimeout(async () => {
+            const params = new URLSearchParams(window.location.search);
+            const asKey = params.get('asKey');
+            const asGroup = params.get('asGroup');
+            const asSn = params.get('asSn');
+            if (asKey) {
+                isImpersonating = true;
+                const snap = await db.ref('students/' + asKey).once('value');
+                if (snap.exists()) {
+                    const s = snap.val();
+                    if (s.status !== 'disabled') {
+                        s._key = asKey;
+                        currentStudent = s;
+                        const grp = s.group || asGroup;
+                        const gSnap = await db.ref('groups').orderByChild('name').equalTo(grp).once('value');
+                        gSnap.forEach(c => currentGroupFees = c.val().fees || 0);
+                        localStorage.setItem('savedSession', JSON.stringify({ group: grp, studentNumber: s.studentNumber, name: s.name }));
+                        await loadAllData(grp, s.studentNumber);
+                        enterDashboard();
+                        history.replaceState({}, '', window.location.pathname);
+                    }
+                }
+                return;
+            }
             const session = JSON.parse(localStorage.getItem('savedSession'));
             if (session && session.group && session.studentNumber) {
                 groupSelect.value = session.group;
@@ -1536,6 +1580,8 @@
         function enterDashboard() {
             loginPage.classList.add('hidden');
             dashboardPage.classList.remove('hidden');
+            const backBtn = document.getElementById('backToTeacherBtn');
+            if (backBtn) backBtn.style.display = isImpersonating ? '' : 'none';
             setLoading(false);
             studentNameDisplay.textContent = currentStudent.name;
             dataFilter.value = 'all';
@@ -1554,8 +1600,8 @@
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('tabBackContainer').style.display = '';
             document.getElementById('monthFilterContainer').style.display = '';
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active', 'tab-fullscreen', 'requiredHw','instant','attendance','payments','chat','notifications','homeworks','exams','performance','reading','dictation','notes','gallery','books','studentStars'));
-            const map = { requiredHw:'tabRequiredHw', instant:'tabInstant', attendance:'tabAttendance', payments:'tabPayments', chat:'tabChat', notifications:'tabNotifications', homeworks:'tabHomeworks', exams:'tabExams', performance:'tabPerformance', reading:'tabReading', dictation:'tabDictation', notes:'tabNotes', gallery:'tabGallery', books:'tabBooks', studentStars:'tabStudentStars' };
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active', 'tab-fullscreen', 'requiredHw','instant','attendance','payments','chat','notifications','homeworks','exams','performance','reading','dictation','notes','gallery','books','studentStars','oldGrades'));
+            const map = { requiredHw:'tabRequiredHw', instant:'tabInstant', attendance:'tabAttendance', payments:'tabPayments', chat:'tabChat', notifications:'tabNotifications', homeworks:'tabHomeworks', exams:'tabExams', performance:'tabPerformance', reading:'tabReading', dictation:'tabDictation', notes:'tabNotes', gallery:'tabGallery', books:'tabBooks', studentStars:'tabStudentStars', oldGrades:'tabOldGrades' };
             const el = document.getElementById(map[tab]);
             el.classList.add('active', 'tab-fullscreen', tab);
             updateFilterLabels(tab);
@@ -1572,6 +1618,7 @@
             if (tab === 'gallery' && currentStudent) loadStudentGallery();
             if (tab === 'books' && currentStudent) loadStudentBooks();
             if (tab === 'studentStars' && currentStudent) switchStudentStarsTab('stars');
+            if (tab === 'oldGrades' && currentStudent) loadStudentOldGrades();
             if (tab === 'notifications' && currentStudent) { loadStudentNotifications(); markNotifSeen(); }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1580,7 +1627,7 @@
             document.getElementById('mainScreen').classList.remove('hidden');
             document.getElementById('tabBackContainer').style.display = 'none';
             document.getElementById('monthFilterContainer').style.display = 'none';
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active', 'tab-fullscreen', 'requiredHw','instant','attendance','payments','chat','notifications','homeworks','exams','performance','reading','dictation','notes','gallery','books','studentStars'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active', 'tab-fullscreen', 'requiredHw','instant','attendance','payments','chat','notifications','homeworks','exams','performance','reading','dictation','notes','gallery','books','studentStars','oldGrades'));
             // Clean up chat listeners
             if (studentChatListener) { studentChatListener.off(); studentChatListener = null; }
             if (studentLockRef) { studentLockRef.off(); studentLockRef = null; }
@@ -1943,6 +1990,11 @@
                 document.getElementById('notifTabBadge').style.display = 'none';
             });
         }
+        // ===== BACK TO TEACHER (impersonation) =====
+        function backToTeacher() {
+            window.location.href = encodeURI('لوحة_المعلم.html') + '?skipSplash=1';
+        }
+
         // ===== LOGOUT =====
         function logout() {
             currentStudent = null;
@@ -3571,40 +3623,42 @@
         }
 
         function saveFinalAnswer(assignKey, group, sn, payload, a) {
-            const newPoints = payload.totalPoints || payload.points || 0;
-            // For edits: calculate delta points to avoid double-counting
-            db.ref(`answers/${assignKey}/${sn}`).once('value', oldSnap => {
-                const oldPoints = oldSnap.exists() ? (oldSnap.val().totalPoints || oldSnap.val().points || 0) : 0;
-                const delta = newPoints - oldPoints;
-
-                db.ref(`answers/${assignKey}/${sn}`).update(payload);
+            db.ref(`answers/${assignKey}/${sn}`).update(payload, err => {
                 db.ref(`instantAssignments/groups/${group}/${assignKey}/answeredBy/${sn}`).set(true);
-
-                if (delta !== 0 && payload.graded) {
-                    updateStudentScore(group, sn, currentStudent.name, delta);
-                }
+                if (!err) recalcStudentScore(group, sn, currentStudent.name);
                 if (payload.submittedAt) saveAnswerTimestamp(assignKey, payload.submittedAt);
                 showStudentToast('✅ تم إرسال الإجابة' + (a.answeredBy && a.answeredBy[sn] ? ' (تعديل)' : ''));
-                if (studentIAInterval) { clearInterval(studentIAInterval); studentIAInterval = null; }
-                setTimeout(() => loadStudentAssignments(), 500);
-            }, () => {
-                db.ref(`answers/${assignKey}/${sn}`).update(payload);
-                db.ref(`instantAssignments/groups/${group}/${assignKey}/answeredBy/${sn}`).set(true);
-                if (payload.graded && newPoints > 0) {
-                    updateStudentScore(group, sn, currentStudent.name, newPoints);
-                }
-                if (payload.submittedAt) saveAnswerTimestamp(assignKey, payload.submittedAt);
-                showStudentToast('✅ تم إرسال الإجابة');
                 if (studentIAInterval) { clearInterval(studentIAInterval); studentIAInterval = null; }
                 setTimeout(() => loadStudentAssignments(), 500);
             });
         }
 
-        function updateStudentScore(group, sn, name, points) {
-            const ref = db.ref(`scores/groups/${group}/${sn}`);
-            ref.transaction(current => {
-                if (!current) return { name, points: points, done: 1 };
-                return { name: current.name || name, points: (current.points || 0) + points, done: (current.done || 0) + 1 };
+        // Recalculate a student's total score directly from answers (source of truth)
+        function recalcStudentScore(group, sn, fallbackName) {
+            db.ref('config/periods/' + group).once('value', pSnap => {
+                const pv = pSnap.val();
+                const lastClosedAt = (pv && pv.lastClosedAt) || 0;
+                db.ref(`instantAssignments/groups/${group}`).once('value', assignSnap => {
+                    const keys = [];
+                    if (assignSnap.exists()) assignSnap.forEach(child => {
+                        const a = child.val();
+                        if ((a.createdAt || 0) >= lastClosedAt) keys.push(child.key);
+                    });
+                    const loaders = keys.map(k => new Promise(res => db.ref(`answers/${k}/${sn}`).once('value', res)));
+                    Promise.all(loaders).then(snaps => {
+                        let points = 0, done = 0, name = fallbackName || '';
+                        snaps.forEach(snap => {
+                            if (snap.exists()) {
+                                const ans = snap.val();
+                                const p = ans.totalPoints !== undefined ? ans.totalPoints : (ans.points || 0);
+                                points += Number(p) || 0;
+                                done++;
+                                if (!name && ans.studentName) name = ans.studentName;
+                            }
+                        });
+                        db.ref(`scores/groups/${group}/${sn}`).set({ name, points, done });
+                    });
+                });
             });
         }
 
@@ -4377,6 +4431,77 @@
             document.getElementById('studentCertsSection').style.display = tab === 'certs' ? '' : 'none';
             if (tab === 'stars') loadStudentStars();
             else loadStudentCertificates();
+        }
+
+        // ===== OLD GRADES HISTORY (after being moved between groups) =====
+        function loadStudentOldGrades() {
+            const list = document.getElementById('studentOldGradesList');
+            const empty = document.getElementById('studentOldGradesEmpty');
+            const info = document.getElementById('studentOldGradesInfo');
+            if (!currentStudent) { list.innerHTML = ''; if (empty) empty.classList.remove('hidden'); return; }
+            list.innerHTML = '<div class="text-gray-400 text-sm py-2">⏳ تحميل...</div>';
+            if (empty) empty.classList.add('hidden');
+            if (info) info.textContent = '';
+            db.ref('students/' + currentStudent._key + '/groupHistory').once('value', histSnap => {
+                const history = (histSnap.val() || []).filter(h => h && h.group && h.group !== currentStudent.group);
+                if (!history.length) {
+                    list.innerHTML = '';
+                    if (empty) empty.classList.remove('hidden');
+                    return;
+                }
+                if (info) info.textContent = '👤 ' + (currentStudent.name || '') + ' — تُعرض درجاتك من المجموعات السابقة (لا تُحتسب في ترتيبك الحالي)';
+                const sections = [
+                    { label: '📚 الواجبات', path: 'homeworks' },
+                    { label: '📊 الاختبارات', path: 'exams' },
+                    { label: '📘 القراءة', path: 'reading' },
+                    { label: '📝 الإملاء', path: 'dictation' }
+                ];
+                const loadAll = history.map(h => new Promise(resolve => {
+                    const groupRecs = {};
+                    const secPromises = sections.map(sec => new Promise(r2 => {
+                        db.ref(sec.path + '/' + h.group).once('value', snap => {
+                            const recs = [];
+                            if (snap.exists()) snap.forEach(titleChild => {
+                                const rec = titleChild.child(currentStudent.studentNumber);
+                                if (rec.exists()) {
+                                    const v = rec.val() || {};
+                                    recs.push({ title: titleChild.key, grade: v.grade, date: v.date, maxGrade: v.maxGrade, semester: v.semester });
+                                }
+                            });
+                            groupRecs[sec.label] = recs;
+                            r2();
+                        }, () => r2());
+                    }));
+                    Promise.all(secPromises).then(() => resolve({ group: h.group, at: h.at, data: groupRecs }));
+                }));
+                Promise.all(loadAll).then(results => {
+                    list.innerHTML = '';
+                    results.forEach(g => {
+                        const card = document.createElement('div');
+                        card.className = 'glass-strong rounded-xl p-4 space-y-2';
+                        const movedDate = g.at ? new Date(g.at).toLocaleDateString('ar-EG') : '';
+                        let html = '<div style="font-weight:800;color:#facc15;margin-bottom:4px">📁 مجموعة: ' + escapeHtml(g.group) + (movedDate ? ' <span style="color:rgba(255,255,255,0.5);font-size:.75rem">(نُقلت بتاريخ ' + movedDate + ')</span>' : '') + '</div>';
+                        html += '<div style="color:rgba(255,255,255,0.55);font-size:.8rem;margin-bottom:6px">درجات سابقة لا تُحتسب في ترتيبك الحالي</div>';
+                        let hasAny = false;
+                        sections.forEach(sec => {
+                            const recs = g.data[sec.label] || [];
+                            if (!recs.length) return;
+                            hasAny = true;
+                            html += '<div class="table-wrap"><table><thead><tr><th>📅 التاريخ</th><th>اليوم</th><th>' + sec.label + '</th><th>📊 الدرجة</th></tr></thead><tbody>';
+                            recs.forEach(r => {
+                                const grade = r.grade || '';
+                                const miss = grade === 'لم يُسلّم' || grade === 'لم يختبر' || grade === 'لم يُقرأ' || grade === '';
+                                const cls = miss ? 'grade-miss' : 'grade-pass';
+                                html += '<tr><td>' + escapeHtml(r.date || '') + '</td><td>' + getDayName(r.date) + '</td><td style="font-weight:600">' + escapeHtml(r.title || '') + '</td><td class="' + cls + '">' + escapeHtml(grade) + '</td></tr>';
+                            });
+                            html += '</tbody></table></div>';
+                        });
+                        if (!hasAny) html += '<div style="color:rgba(255,255,255,0.45);font-size:.8rem">لا توجد درجات محفوظة من هذه المجموعة</div>';
+                        card.innerHTML = html;
+                        list.appendChild(card);
+                    });
+                });
+            });
         }
 
         function loadStudentStars() {
