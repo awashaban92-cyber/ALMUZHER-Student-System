@@ -1362,7 +1362,9 @@
                 groupSelect.innerHTML = '<option value="">— اختر المجموعة —</option>';
                 if (!snap.exists()) { groupSelect.innerHTML = '<option value="">لا توجد مجموعات</option>'; return; }
                 snap.forEach(child => {
-                    const g = child.val().name;
+                    const gv = child.val() || {};
+                    if (gv.hidden === true) return;
+                    const g = gv.name;
                     const opt = document.createElement('option');
                     opt.value = g; opt.textContent = g;
                     groupSelect.appendChild(opt);
@@ -1397,6 +1399,16 @@
             }
             const session = JSON.parse(localStorage.getItem('savedSession'));
             if (session && session.group && session.studentNumber) {
+                try {
+                    const sgVis = await db.ref('groups').orderByChild('name').equalTo(session.group).once('value');
+                    let sessionHidden = false;
+                    if (sgVis.exists()) sgVis.forEach(c => { if ((c.val() || {}).hidden === true) sessionHidden = true; });
+                    if (sessionHidden) {
+                        localStorage.removeItem('savedSession');
+                        showMsg('🙈 مجموعتك غير متاحة حالياً — اختر مجموعة ظاهرة');
+                        return;
+                    }
+                } catch (e) { console.error(e); }
                 groupSelect.value = session.group;
                 const snap = await db.ref('students').orderByChild('group').equalTo(session.group).once('value');
                 if (snap.exists()) {
@@ -1459,6 +1471,10 @@
             if (!group || !password) { showMsg('⚠️ اختر المجموعة وأدخل الرقم السري'); return; }
             setLoading(true);
             try {
+                const gVis = await db.ref('groups').orderByChild('name').equalTo(group).once('value');
+                let groupHidden = false;
+                if (gVis.exists()) gVis.forEach(c => { if ((c.val() || {}).hidden === true) groupHidden = true; });
+                if (groupHidden) { setLoading(false); showMsg('🙈 هذه المجموعة غير متاحة حالياً'); passwordInput.value = ''; loadGroups(); return; }
                 const snap = await db.ref('students').orderByChild('group').equalTo(group).once('value');
                 let match = null;
                 if (snap.exists()) snap.forEach(c => { const s = c.val(); s._key = c.key; if (s.password === password && s.status !== 'disabled') match = s; });
@@ -4533,7 +4549,8 @@
                             '<span style="font-size:1.5rem">⭐</span>' +
                             '<span class="text-white font-bold text-sm">' + escapeHtml(reason) + '</span>' +
                             '<span class="text-gray-400 text-xs">' + dateStr + '</span>' +
-                        '</div>';
+                        '</div>' +
+                        (a.cardUrl ? '<img src="' + String(a.cardUrl).replace(/"/g, '') + '" style="max-width:100%;border-radius:8px;margin-top:6px;cursor:pointer" onclick="window.open(this.src,\'_blank\')" />' : '');
                         list.appendChild(div);
                     });
                 }
